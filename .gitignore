@@ -1,0 +1,10 @@
+*.xlsx
+*.xls
+*.docx
+*.doc
+*.pdf
+*.zip
+*.mp4
+AppData/
+Documents/
+OneDrive/
