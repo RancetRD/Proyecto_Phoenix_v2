@@ -1,13 +1,12 @@
 from modules.validaciones import *
-from modules.bodega import guardar_factura_bodega
-from modules.consultas import buscar_por_id, buscar_facturas
+from modules.consultas import buscar_por_id
 from modules.factura import factura
 #---------------FUNCION BASE DE REGISTRO DE FACTURAS-------------------
 def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    print("REGISTROS GASTOS 606")
    while True:
         ncf = campo_ncf("NCF-->").upper()
-        if any (f["ncf"]== ncf for f in empresa.compras):
+        if any (f.ncf== ncf for f in empresa.compras):
          print("NCF duplicado, vuelva introcuir el ncf",ncf)
          continue
         break
@@ -17,8 +16,8 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    monto_neto = campo_float("MONTO NETO-->")
    while True:
             
-        itbs = campo_float("ITBS-->")    
-        if itbs > monto_neto:
+        itbis = campo_float("ITBS-->")    
+        if itbis > monto_neto:
             print("EL itbs no puede ser mayor al monto neto")
             continue
         break
@@ -27,15 +26,28 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    ley_10 = 0
 
    
-   concepto = campo_texto("Concepto del gasto-->").strip()
-   comentario = input("Comentario (Opcional)-->").strip().upper()
 
-   empresa = guardar_factura_bodega(empresa, ncf, proveedor, rnc, fecha, monto_neto, itbs, isc, cdt, ley_10, concepto, comentario)
+   nueva_factura = factura(empresa,"compras")
+   nueva_factura.tipo_documento = "compras"
+   nueva_factura.ncf = ncf
+   nueva_factura.proveedor = proveedor
+   nueva_factura.rnc = rnc
+   nueva_factura.fecha = fecha
+   nueva_factura.monto_neto = monto_neto
+   nueva_factura.itbs = itbis
+   nueva_factura.total = monto_neto + itbis
+   nueva_factura.concepto = campo_texto("Digite el concepto del gasto de su factura").strip()
+   nueva_factura.comentario = campo_texto("Digite un comentario si gusta").strip().upper()
+   nueva_factura.saldo_pendiente = nueva_factura.total
+
+
+
+   
    
    ultima_factura = empresa.compras[-1]
    print(f"\n Registro exitoso.")
    print(f"Su numero de facturo registrado es el #{len(empresa.compras)}" )
-   print(f"Resumen: {ultima_factura['proveedor']} | NCF: {ultima_factura['ncf']} | Total: {ultima_factura['total']}")
+   print(f"Resumen: {nueva_factura.proveedor} | NCF: {nueva_factura.ncf} | Total: {nueva_factura.total}")
    return empresa
   
   ############################################### REGISTRAR PROFORMA  #################################################################################
@@ -73,16 +85,30 @@ def registrar_telecom(empresa):
    rnc = campo_rnc("RNC-->")
    fecha = campo_fecha("Introduzca su fecha, ejm 11/04/2026-->")
    monto_neto = campo_float("Monto neto-->")
-   itbs = campo_float("ITBS")
+   itbis = campo_float("ITBS")
    isc = campo_isc("ISC-->",monto_neto)
    cdt = campo_cdt("CDT-->",monto_neto)
    ley_10 = 0
-   concepto = campo_texto("Concepto del gasto-->").strip()
-   comentario = input("Comentario (Opcional)-->").strip().upper()
+   
    print(f"Tu ISC es: {isc} | Tu CDT es: {cdt} ")
 
-   return guardar_factura_bodega(empresa,ncf,proveedor,rnc,fecha,monto_neto,itbs,isc,cdt,ley_10,concepto, comentario)
+   nueva_telecom = factura(empresa,"telecomunicaciones")
+   nueva_telecom.ncf = ncf
+   nueva_telecom.proveedor = proveedor
+   nueva_telecom.rnc = rnc
+   nueva_telecom.fecha = fecha
+   nueva_telecom.monto_neto = monto_neto
+   nueva_telecom.itbis = itbis
+   nueva_telecom.isc = isc
+   nueva_telecom.cdt = cdt
+   nueva_telecom.ley_10 = ley_10
+   nueva_telecom.total = monto_neto + itbis + isc + cdt
+   nueva_telecom.saldo_pendiente = nueva_telecom.total
+   nueva_telecom.concepto = campo_texto("Introduzca el concepto de la factura").strip()
+   nueva_telecom.comentario = campo_texto("Introduce un comentario si gusta")
+   
 
+   return empresa
 
 ############################################### REGISTRAR RESTAURANTE #################################################################################
 ############################################### REGISTRAR RESTAURANTE  #################################################################################
@@ -96,14 +122,25 @@ def registrar_restaurante(empresa):
    rnc = campo_rnc("RNC-->")
    fecha = campo_fecha("Introduzca su fecha, ejm 11/04/2026-->")
    monto_neto = campo_float("Monto neto-->")
-   itbs = monto_neto * 0.18
+   itbis = monto_neto * 0.18
    ley_10 = monto_neto * 0.10
-   concepto = campo_texto("Concepto del gasto-->").strip()
-   comentario = input("Comentario (Opcional)-->").strip().upper()
-   print("Su itbs es: ",itbs,"La propina legal es : ",ley_10)
+   print("Su itbs es: ",itbis,"La propina legal es : ",ley_10)
+
+   nueva_restaurantes = factura(empresa,"restaurantes")
+   nueva_restaurantes.ncf = ncf
+   nueva_restaurantes.proveedor = proveedor
+   nueva_restaurantes.rnc = rnc
+   nueva_restaurantes.fecha = fecha
+   nueva_restaurantes.monto_neto = monto_neto
+   nueva_restaurantes.itbis = itbis
+   nueva_restaurantes.ley_10 = ley_10
+   nueva_restaurantes.total = monto_neto + itbis + ley_10
+   nueva_restaurantes.saldo_pendiente = nueva_restaurantes.total
+   nueva_restaurantes.concepto = campo_texto("Introduce el concepto de la factura").strip()
+   nueva_restaurantes.comentario = campo_texto("Introduce un comentario si gusta").strip().upper()
 
 
-   return guardar_factura_bodega(empresa, ncf, proveedor, rnc, fecha, monto_neto, itbs, 0, 0, ley_10, concepto, comentario)
+   return empresa
 
 ############################################### REGISTRAR PAGO GLOBAL #################################################################################
 ############################################### REGISTRAR PAGO GLOBAL #################################################################################
@@ -111,70 +148,71 @@ def registrar_restaurante(empresa):
 
 #AQUI ES DONDE PROCEDEREMOS A REALIZAR LOS PAGOS , SEGUN EL TIPO DE PAGO QUE APLIQUE , O SI ES PARCIAL O COMPLETO
 def registrar_pago_global(empresa):
-   pago_id_ncf = campo_texto("Introduce el numero de ID PHX o el NCF de la factura").strip().upper()
-   guardar_pago_id_ncf = None
-   for f in empresa.compras:
-      if f["id_transaccion"]==pago_id_ncf or f["ncf"]==pago_id_ncf:
-         guardar_pago_id_ncf = f
-         break
-   if guardar_pago_id_ncf == None:
-      print("No se encontro la factura")
-      return
-   factura = guardar_pago_id_ncf
-   print("Factura encontrada")
-   print(f"Factura encontrada: {factura['proveedor']} - Saldo: {factura['saldo_pendiente']}")
-   monto_pagado = campo_float("Monto a pagar --->")
-   if monto_pagado > factura["saldo_pendiente"]:
-      print("Error el monto excede el saldo pendiente")
-      return
-   fecha_pagada = campo_fecha("Debe Introducir la fecha pagada, ejm 11/04/2026")
-   print("Bancos disponible",list(empresa.bancos.keys()))
-   metodo_de_pago = campo_texto("Indique su metodo de pago ").strip().upper()
-   usuario = "Admin_Peter"
-   nuevo_pago = {
-      "monto":monto_pagado,
-      "metodo":metodo_de_pago,
-      "fecha":fecha_pagada,
-      "usuario":usuario,
-      "activo":True
+    pago_id_ncf = campo_texto("Introduce el ID PHX o NCF de la factura").strip().upper()
+    
+    # 1. Buscamos la factura usando tu buscador universal
+    factura = buscar_por_id(empresa, pago_id_ncf)
+    
+    # 2. Validamos si realmente se encontró algo
+    if factura is None:
+        print("❌ No se encontró la factura en el sistema.")
+        return
+        
+    print(f"✅ Factura encontrada: {factura.proveedor} - Saldo: RD${factura.saldo_pendiente:,.2f}")
+    
+    monto_pagado = campo_float("Monto a pagar --->")
+    if monto_pagado > factura.saldo_pendiente:
+        print("❌ Error: El monto excede el saldo pendiente.")
+        return
+        
+    fecha_pagada = campo_fecha("Introduzca la fecha pagada, ejm 11/04/2026")
+    print("Bancos disponibles:", list(empresa.bancos.keys()))
+    metodo_de_pago = campo_texto("Indique su método de pago ").strip().upper()
+    
+    # 3. Creamos el registro del pago (Diccionario dentro del Objeto)
+    nuevo_pago = {
+        "monto": monto_pagado,
+        "metodo": metodo_de_pago,
+        "fecha": fecha_pagada,
+        "usuario": "Admin_Peter",
+        "activo": True
+    }
+    
+    factura.historial_pagos.append(nuevo_pago)
+    
+    # 4. Actualizamos el estado usando la función híbrida
+    actualizar_estado_factura(factura)
+    
+    print(f"✅ Pago de RD${monto_pagado:,.2f} aplicado con éxito.")
 
-   }
-   factura["historial_pagos"].append(nuevo_pago)
-   actualizar_estado_factura(factura)
-   print(f"Pago de {monto_pagado} aplicado con exito")
-
-   if metodo_de_pago in empresa.bancos:
-
-      if empresa.bancos[metodo_de_pago]["balance"] >= monto_pagado:
-       empresa.bancos[metodo_de_pago]["balance"] -= monto_pagado
-       print(f" Pago aplicado. Nuevo balance en {metodo_de_pago}: RD${empresa.bancos[metodo_de_pago]["balance"]:,.2f}")
-      else:
-          print(f" Fondos insuficientes en {metodo_de_pago}. Saldo: RD${empresa.bancos[metodo_de_pago]["balance"]:,.2f}")
-   else:
-      print(f"El banco '{metodo_de_pago}' no existe en el sistema")
-      
-
-   
-
+    # 5. Lógica bancaria (Tu lógica original con puntos)
+    if metodo_de_pago in empresa.bancos:
+        if empresa.bancos[metodo_de_pago]["balance"] >= monto_pagado:
+            empresa.bancos[metodo_de_pago]["balance"] -= monto_pagado
+            print(f"💰 Nuevo balance en {metodo_de_pago}: RD${empresa.bancos[metodo_de_pago]['balance']:,.2f}")
+        else:
+            print(f"⚠️ Fondos insuficientes en {metodo_de_pago}. Saldo: RD${empresa.bancos[metodo_de_pago]['balance']:,.2f}")
+    else:
+        print(f"❌ El banco '{metodo_de_pago}' no existe en el sistema.")
 ############################################### ACTUALIZAR ESTADO FACTURA #################################################################################
 ############################################### ACTUALIZAR ESTADO FACTURA #################################################################################
 
 def actualizar_estado_factura(factura):
    total_acumulado = 0.0#EMPEZAMOS EL CONTADOR EN 0 , DIRECTAMENTE CON NUMERO FLOTANTE
 
-   for pago in factura ["historial_pagos"]:# AQUI REALIZAMOS LA RECORRIDA DE LA LISTA FACTURA
-       if pago ["activo"]== True:
+   for pago in factura.historial_pagos :# AQUI REALIZAMOS LA RECORRIDA DE LA LISTA FACTURA
+       if pago["activo"] == True:
          total_acumulado += pago["monto"]#GUARDAMOS Y ACUTLIZANOS EL MONTO INMEDIATAMENTE
 
 
-   factura["monto_acumulado"]= total_acumulado
-   factura["saldo_pendiente"] = factura["total"] - total_acumulado
+   factura.monto_acumulado= total_acumulado
+   factura.saldo_pendiente = factura.total - total_acumulado
 
-   if factura["saldo_pendiente"] == 0:#AQUI PONEMOS LAS CONDICIONALES DEL ESTADO DE LA FACTURA
+   if factura.saldo_pendiente == 0:#AQUI PONEMOS LAS CONDICIONALES DEL ESTADO DE LA FACTURA
        print("PAGADO")
-   elif factura["saldo_pendiente"] == factura["total"]:
+   elif factura.saldo_pendiente == factura.total:
        print("PENDIENTE")
-   elif factura["saldo_pendiente"] > 0 and factura["saldo_pendiente"] < factura["total"]:
+   elif factura.saldo_pendiente > 0 and factura.saldo_pendiente < factura.total:
        print("ABONADO")
 
    return factura
@@ -189,8 +227,8 @@ def convertir_proformar_a_factura(empresa, id_buscado):
       print("No se encontro el documento")
       return empresa
 
-   if factura_encontrada["tipo_documento"] == "proformas":
-      print(f"Proforma encontrada: {factura_encontrada['proveedor']}")
+   if factura_encontrada.tipo_documento == "proformas":
+      print(f"Proforma encontrada: {factura_encontrada.proveedor}")
       
       # USANDO TU FORMA: Un bucle para capturar la opción del NCF
       while True:
@@ -212,7 +250,7 @@ def convertir_proformar_a_factura(empresa, id_buscado):
          break # Salimos del bucle cuando la opción es válida
 
       # MOVIENDO LOS DATOS 
-      factura_encontrada["tipo_documento"] = "ventas"
+      factura_encontrada.tipo_documento = "ventas"
       empresa.ventas.append(factura_encontrada)
       empresa.proformas.remove(factura_encontrada)
 
@@ -226,10 +264,10 @@ def convertir_proformar_a_factura(empresa, id_buscado):
       
       # GENERANDO EL NCF 
       secuencia_actual = empresa.ncf_secuencia[tipo]
-      factura_encontrada["ncf"] = f"{tipo}{secuencia_actual:0{longitud}d}"
+      factura_encontrada.ncf = f"{tipo}{secuencia_actual:0{longitud}d}"
       empresa.ncf_secuencia[tipo] += 1
       
-      print(f"Pago aplicado. Nuevo NCF: {factura_encontrada['ncf']}")
+      print(f"Pago aplicado. Nuevo NCF: {factura_encontrada.ncf}")
        
    else:
       print("EL documento no es una proforma")

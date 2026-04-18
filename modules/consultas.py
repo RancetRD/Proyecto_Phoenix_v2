@@ -9,10 +9,12 @@ def buscar_por_id(empresa, id_buscado):
     id_buscado = id_buscado.strip().upper()
     
     for factura in lista_universal:
-     
-       f_id = factura.get("id_transaccion")
-       f_ncf = factura.get("ncf")
-           
+       if isinstance (factura,dict):
+        f_id = factura.get("id_transaccion")
+        f_ncf = factura.get("ncf")
+       else:
+          f_ncf = None
+          f_id = factura.cedula_empleado    
        if f_id == id_buscado or f_ncf == id_buscado:
            return factura
             

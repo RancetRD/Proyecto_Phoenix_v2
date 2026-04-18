@@ -139,6 +139,8 @@ def id_phoenix(empresa):
    
    todos_los_numeros = []
    for factura in lista_universal:
+      if not  isinstance(factura,dict):
+         continue
       id_texto = factura["id_transaccion"]
       numero_final = int(id_texto[4:])
       todos_los_numeros.append(numero_final)
@@ -149,6 +151,23 @@ def id_phoenix(empresa):
    id_maximo = max (todos_los_numeros) 
    nuevo_id_numerico = id_maximo +1 
    return f"PHX-{nuevo_id_numerico:06d}"
+
+def campo_cedula(mensaje):
+
+   while True:
+      cedula = input(mensaje).strip()
+      if not cedula:
+         print("Campo vacio debe introducir su cedula sin dejar campos vacios ")
+         continue
+      if not cedula.isdigit():
+         print("La cedula solo debe contener numeros sin guiones")
+         continue
+      if len(cedula) != 11:
+         print("Tu cedula debe tener 11 digitos sin guiones")
+         continue
+      return cedula
+   
+
       
       
 
