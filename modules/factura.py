@@ -25,6 +25,8 @@ class factura():
         self.concepto = ""
         self.comentario = ""
         self.estado = "PENDIENTE"
+        self.moneda = "DOP"
+        self.tasa_cambio = 1.0
         
         # 3. Listas de seguimiento
         self.historial_pagos = []

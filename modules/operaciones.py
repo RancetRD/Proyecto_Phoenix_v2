@@ -34,21 +34,24 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    nueva_factura.rnc = rnc
    nueva_factura.fecha = fecha
    nueva_factura.monto_neto = monto_neto
-   nueva_factura.itbs = itbis
+   nueva_factura.itbis = itbis
    nueva_factura.total = monto_neto + itbis
    nueva_factura.concepto = campo_texto("Digite el concepto del gasto de su factura").strip()
-   nueva_factura.comentario = campo_texto("Digite un comentario si gusta").strip().upper()
+   nueva_factura.comentario = input("Digite un comentario si gusta").strip().upper()
    nueva_factura.saldo_pendiente = nueva_factura.total
+# --- Resumen Final de Registro 606 ---
+   print(f"\n" + "—"*40)
+   print(f"✅ GASTO 606 REGISTRADO CON ÉXITO")
+   print(f"🆔 ID PHOENIX: {nueva_factura.id_transaccion}")
+   print(f"📄 NCF:        {nueva_factura.ncf}")
+   print(f"🏢 PROVEEDOR:  {nueva_factura.proveedor}")
+   print(f"💰 TOTAL:      RD${nueva_factura.total:,.2f}") # Formato con comas y decimales
+   print("—"*40)
+   print(f"Detalle: Neto RD${nueva_factura.monto_neto:,.2f} | ITBIS RD${nueva_factura.itbis:,.2f}")
+   print("—"*40 + "\n")
 
-
-
-   
-   
-   ultima_factura = empresa.compras[-1]
-   print(f"\n Registro exitoso.")
-   print(f"Su numero de facturo registrado es el #{len(empresa.compras)}" )
-   print(f"Resumen: {nueva_factura.proveedor} | NCF: {nueva_factura.ncf} | Total: {nueva_factura.total}")
    return empresa
+   
   
   ############################################### REGISTRAR PROFORMA  #################################################################################
    ############################################### REGISTRAR PROFORMA  #################################################################################
@@ -105,7 +108,12 @@ def registrar_telecom(empresa):
    nueva_telecom.total = monto_neto + itbis + isc + cdt
    nueva_telecom.saldo_pendiente = nueva_telecom.total
    nueva_telecom.concepto = campo_texto("Introduzca el concepto de la factura").strip()
-   nueva_telecom.comentario = campo_texto("Introduce un comentario si gusta")
+   nueva_telecom.comentario = input("Introduce un comentario si gusta")
+   print(f"\n✅ Registro de Telecomunicaciones exitoso.")
+   print(f"🆔 ID Phoenix: {nueva_telecom.id_transaccion}")
+   print(f"💰 TOTAL A PAGAR: RD${nueva_telecom.total:,.2f}") # <--- Esta es la clave
+   print(f"------------------------------------------")
+   print(f"Detalle: Neto: {nueva_telecom.monto_neto} | ITBIS: {nueva_telecom.itbis} | ISC: {nueva_telecom.isc} | CDT: {nueva_telecom.cdt}")
    
 
    return empresa
@@ -137,7 +145,20 @@ def registrar_restaurante(empresa):
    nueva_restaurantes.total = monto_neto + itbis + ley_10
    nueva_restaurantes.saldo_pendiente = nueva_restaurantes.total
    nueva_restaurantes.concepto = campo_texto("Introduce el concepto de la factura").strip()
-   nueva_restaurantes.comentario = campo_texto("Introduce un comentario si gusta").strip().upper()
+   nueva_restaurantes.comentario = input("Introduce un comentario si gusta").strip().upper()
+   # --- Resumen Final de Registro ---
+   print(f"\n" + "="*40)
+   print(f"✅ RESTAURANTE REGISTRADO CON ÉXITO")
+   print(f"🆔 ID PHOENIX: {nueva_restaurantes.id_transaccion}")
+   print(f"📄 NCF:        {nueva_restaurantes.ncf}")
+   print(f"🏢 PROVEEDOR:  {nueva_restaurantes.proveedor}")
+   print(f"💰 TOTAL:      RD${nueva_restaurantes.total:,.2f}")
+   print("="*40)
+   print(f"Detalle: Neto RD${monto_neto:,.2f} | ITBIS RD${itbis:,.2f} | Ley 10 RD${ley_10:,.2f}")
+   print("="*40 + "\n")
+
+   return empresa
+   print(f"🆔 ID Phoenix: {nueva_restaurantes.id_transaccion}")      
 
 
    return empresa
@@ -268,6 +289,7 @@ def convertir_proformar_a_factura(empresa, id_buscado):
       empresa.ncf_secuencia[tipo] += 1
       
       print(f"Pago aplicado. Nuevo NCF: {factura_encontrada.ncf}")
+      
        
    else:
       print("EL documento no es una proforma")

@@ -123,34 +123,8 @@ def funcion_soporte_hora(nombre_usuario):
 
 def id_phoenix(empresa):
   
-   
-   lista_universal = (
-        empresa.compras + 
-        empresa.ventas + 
-        empresa.cotizaciones + 
-        empresa.proformas + 
-        empresa.telecomunicaciones + 
-        empresa.restaurantes + 
-        empresa.gastos_menores + 
-        empresa.reporte_ajusteros
-    )
-   if len(lista_universal) == 0:
-      return "PHX-000001"
-   
-   todos_los_numeros = []
-   for factura in lista_universal:
-      if not  isinstance(factura,dict):
-         continue
-      id_texto = factura["id_transaccion"]
-      numero_final = int(id_texto[4:])
-      todos_los_numeros.append(numero_final)
-      
-        
-  
-   
-   id_maximo = max (todos_los_numeros) 
-   nuevo_id_numerico = id_maximo +1 
-   return f"PHX-{nuevo_id_numerico:06d}"
+   empresa.contador_maestro += 1
+   return f"PHX-{empresa.contador_maestro:06d}"
 
 def campo_cedula(mensaje):
 
