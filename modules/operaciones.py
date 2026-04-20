@@ -59,9 +59,33 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
 def registrar_proforma(empresa):
    print("REGISTRO DE PROFORMA")
    
+   proveedor = campo_texto("Proveedor--->").strip()
+   rnc = campo_rnc ("RNC-->").strip()
+   fecha = campo_fecha("Fecha-->")
+   monto_neto = campo_float("Monto Neto-->")
+   itbis = campo_float("ITBIS--->")
+   comentario = input("Introduce un comentario si gusta")
    documento_proformas = factura(empresa,"proformas")
+   documento_proformas.proveedor = proveedor
+   documento_proformas.rnc = rnc
+   documento_proformas.fecha = fecha
+   documento_proformas.monto_neto = monto_neto
+   documento_proformas.itbis =  itbis
+   documento_proformas.comentario = comentario
+   documento_proformas.total = monto_neto + itbis
+
    empresa.proformas.append(documento_proformas)
-   print(f"✅ Proforma registrada con éxito. ID: {documento_proformas.id_transaccion}")
+   print("\n" + "═"*45)
+   print(f"✅ PROFORMA REGISTRADA: {documento_proformas.id_transaccion}")
+   print(f"   SUPLIDOR : {documento_proformas.proveedor}")
+   print(f"   RNC      : {documento_proformas.rnc}")
+   print(f"   MONTO    : {documento_proformas.monto_neto:,.2f}")
+   print(f"   ITBIS    : {documento_proformas.itbis:,.2f}")
+   print(f"   TOTAL    : {documento_proformas.total:,.2f}")
+   if documento_proformas.comentario:
+        print(f"   NOTA     : {documento_proformas.comentario}")
+   print("═"*45 + "\n")
+   return empresa
    
    
  ############################################### REGISTRAR COTIZACION #################################################################################
@@ -69,10 +93,34 @@ def registrar_proforma(empresa):
 #FUNCION REUTILIZABLE DE COTIZACION
 def registrar_cotizacion(empresa):
    print("REGISTRO DE COTIZACIONES")
+
+  
+   proveedor = campo_texto("Proveedor--->").strip()
+   rnc = campo_rnc ("RNC-->").strip()
+   fecha = campo_fecha("Fecha-->")
+   monto_neto = campo_float("Monto Neto-->")
+   itbis = campo_float("ITBIS--->")
+   comentario = input("Introduce un comentario si gusta")
+   nueva_cotizacion = factura(empresa,"cotizaciones")
+   nueva_cotizacion.proveedor = proveedor
+   nueva_cotizacion.rnc = rnc
+   nueva_cotizacion.fecha = fecha
+   nueva_cotizacion.monto_neto = monto_neto
+   nueva_cotizacion.itbis = itbis
+   nueva_cotizacion.comentario = comentario
+   nueva_cotizacion.total = monto_neto + itbis
    
-   documento_cotizaciones = factura (empresa,"cotizaciones")
-   empresa.cotizaciones.append(documento_cotizaciones)
-   print(f"✅ Cotización registrada con éxito. ID: {documento_cotizaciones.id_transaccion}")
+  
+   empresa.cotizaciones.append(nueva_cotizacion)
+   print("\n" + "─" * 45)
+   print(f"✅ COTIZACIÓN REGISTRADA: {nueva_cotizacion.id_transaccion}")
+   print(f"   PROVEEDOR: {nueva_cotizacion.proveedor}")
+   print(f"   RNC      : {nueva_cotizacion.rnc}")
+   print(f"   TOTAL    : {nueva_cotizacion.total:,.2f}")
+   if nueva_cotizacion.comentario:
+      print(f"   NOTA     : {nueva_cotizacion.comentario}")
+   print("─" * 45 + "\n")
+  
 
 
 
@@ -157,7 +205,7 @@ def registrar_restaurante(empresa):
    print(f"Detalle: Neto RD${monto_neto:,.2f} | ITBIS RD${itbis:,.2f} | Ley 10 RD${ley_10:,.2f}")
    print("="*40 + "\n")
 
-   return empresa
+   
    print(f"🆔 ID Phoenix: {nueva_restaurantes.id_transaccion}")      
 
 
