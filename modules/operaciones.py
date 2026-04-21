@@ -343,3 +343,49 @@ def convertir_proformar_a_factura(empresa, id_buscado):
       print("EL documento no es una proforma")
       
    return empresa
+
+def reporte_ajustero(empresa):
+   print("Registro de Reporte ajustero")
+
+   nombre_reporte_ajustero = campo_texto("Introduzca el nombre").strip().upper()
+   identifacion_ajustero = campo_texto("Introduzca el numero de identificacion CEDULA O PASAPORTE")
+   monto_ajustero = campo_float("Introduzca el monto del reporte --->")
+   valor_isr = 0
+   porcentaje_aplicado =""
+   
+   while True:
+      opciones_valor_isr = campo_texto("Introduzca 1-para 2% ISR o 2-para 10% ISR--->").strip()
+      if opciones_valor_isr =="1":
+       valor_isr = monto_ajustero * 0.02
+       porcentaje_aplicado = "2%"
+       break
+      elif opciones_valor_isr =="2":
+       valor_isr = monto_ajustero * 0.10
+       porcentaje_aplicado = "10%"
+       break
+      else:
+        print("Eliga la opcion 1 o 2")
+   total_a_pagar = monto_ajustero - valor_isr
+      
+   
+   
+   nuevo_ajustero =factura(empresa,"reporte_ajusteros")
+   nuevo_ajustero.nombre_ajustero = nombre_reporte_ajustero
+   nuevo_ajustero.identifacion_ajustero = identifacion_ajustero
+   nuevo_ajustero.monto_ajustero = monto_ajustero
+   nuevo_ajustero.concepto = campo_texto("Introduzca el tipo de trabajo del ajustero")
+   nuevo_ajustero.valor_isr = valor_isr
+   nuevo_ajustero.total = total_a_pagar
+   empresa.reporte_ajusteros.append(nuevo_ajustero)
+
+   print("\n" + "═"*40)
+   print(f"✅ REPORTE REGISTRADO: {nuevo_ajustero.id_transaccion}")
+   print(f"   Ajustero: {nuevo_ajustero.nombre_ajustero}")
+   print(f"   Monto Bruto: {monto_ajustero:,.2f}")
+   print(f"   Retención ({porcentaje_aplicado}): {valor_isr:,.2f}")
+   print(f"   Neto a Pagar: {total_a_pagar:,.2f}")
+   print("═"*40 + "\n")
+   
+   
+
+

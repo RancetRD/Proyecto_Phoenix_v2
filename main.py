@@ -11,6 +11,7 @@ from modules.operaciones import (
     registrar_cotizacion,
     registrar_proforma,
     convertir_proformar_a_factura,
+    reporte_ajustero
     
 )
 mis_empresas = []
@@ -116,38 +117,59 @@ while True:
     
     elif opciones == "9":
         if empresa_activa:
-            ingresar_id_convertir = campo_texto("Introduce el ID del documento a convertir") 
-            # Asegúrate que el nombre sea "proformas" en tu diccionario
-            lista_busqueda = empresa_activa.cotizaciones + empresa_activa.proformas
-            encontrado = False 
+            ingresar_id_convertir = campo_texto("Introduce el ID del documento a convertir").strip().upper() 
             
+            # Unimos las listas solo para buscar
+            lista_busqueda = empresa_activa.cotizaciones + empresa_activa.proformas
+            documento_encontrado = None
+            origen = ""
+
+            # 1. BUSCAMOS EL DOCUMENTO
             for documento in lista_busqueda:
                 if documento.id_transaccion == ingresar_id_convertir:
-                    print(f"✅ Documento encontrado: {documento.proveedor}")
-
-                    while True:
-                        print("1-Compras(GASTOS 606)")
-                        print("2-Ventas(INGRESOS 607)")
-                        seleccionar = campo_texto("Elija la opción del destino final")
-                        
-                        if seleccionar not in ["1","2"]:
-                            print("⚠️ Opción inválida, intente de nuevo")
-                            continue
-                        
-                        destino_final = "compras" if seleccionar == "1" else "ventas"
-                        documento.conversion_fiscal(destino_final)
-                        encontrado = True
-                        break 
-                
-                if encontrado:
+                    documento_encontrado = documento
+                    # Identificamos de dónde viene para borrarlo luego
+                    if documento in empresa_activa.cotizaciones:
+                        origen = "cotizaciones"
+                    else:
+                        origen = "proformas"
                     break
             
-            # CLAVE: Este IF debe estar alineado con el FOR (Dentro de empresa_activa)
-            if not encontrado:
-                print("❌ Error: Documento no encontrado en el sistema.")
+            # 2. SI LO ENCONTRAMOS, PROCESAMOS (FUERA DEL FOR)
+            if documento_encontrado:
+                print(f"✅ Documento encontrado: {documento_encontrado.proveedor}")
+
+                while True:
+                    print("\n1-Compras(GASTOS 606)")
+                    print("2-Ventas(INGRESOS 607)")
+                    seleccionar = campo_texto("Elija la opción del destino final")
+                    
+                    if seleccionar not in ["1", "2"]:
+                        print("⚠️ Opción inválida, intente de nuevo")
+                        continue
+
+                    nuevo_ncf = campo_texto("Introduzca su nuevo NCF").strip().upper()
+                    documento_encontrado.ncf = nuevo_ncf
+
+                    if seleccionar == "1":
+                        documento_encontrado.destino = "606"
+                        empresa_activa.compras.append(documento_encontrado)
+                        print(f"🚀 {ingresar_id_convertir} convertido a Gasto 606 exitosamente.")
+                    else:
+                        documento_encontrado.destino = "607"
+                        empresa_activa.ventas.append(documento_encontrado)
+                        print(f"🚀 {ingresar_id_convertir} convertido a Venta 607 exitosamente.")
+
+                    # BORRAR DEL ORIGEN PARA NO DUPLICAR
+                    if origen == "cotizaciones":
+                        empresa_activa.cotizaciones.remove(documento_encontrado)
+                    else:
+                        empresa_activa.proformas.remove(documento_encontrado)
+                    break
+            else:
+                print("❌ Documento no encontrado en proformas ni cotizaciones.")
         
         else:
-            # Este es el else del 'if empresa_activa'
             print("⚠️ Error: No ha seleccionado una empresa todavía. Use la Opción 2.")
     elif opciones =="10":
          if empresa_activa:
@@ -161,5 +183,10 @@ while True:
     elif opciones =="12":
         if empresa_activa:
             mostrar_historial(empresa_activa)
+        else:
+            print("Seleccione una empresa primero")
+    elif opciones =="13":
+        if empresa_activa:
+            reporte_ajustero(empresa_activa)
         else:
             print("Seleccione una empresa primero")
