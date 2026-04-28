@@ -2,7 +2,9 @@ from modules.validaciones import *
 from modules.bodega import registrar_nueva_empresa, agregar_banco
 from modules.pagos import procesar_debito_banco
 from modules.contabilidad import mostrar_historial
-from modules.factura import factura
+from modules.factura import Factura  
+from modules.nominas import Empleado
+from modules.consultas import buscar_facturas, buscar_por_id
 from modules.operaciones import (
     registrar_gasto,
     registrar_telecom,
@@ -39,10 +41,13 @@ while True:
     print("10- Registrar Banco")
     print("11- Salir del sistema")
     print("12-Historial de pagos")
+    print("13-Reporte ajusteros")
+    print("14-Nominas")
+    print("15-Buscar por ID o NCF")
     
 
     opciones = input("Seleccione la opcion que mas desee--->").strip()
-    if opciones not in [str(i) for i in range(1, 15)]:
+    if opciones not in [str(i) for i in range(1, 20)]:
         print("ERROR: SELECCIONE UNA OPCIÓN VÁLIDA (1-15)")
         continue
 
@@ -188,5 +193,31 @@ while True:
     elif opciones =="13":
         if empresa_activa:
             reporte_ajustero(empresa_activa)
+        else:
+            print("Seleccione una empresa primero")
+    elif opciones =="14":
+        if empresa_activa:
+            nuevo_colaborador = Empleado(empresa_activa)
+            empresa_activa.nominas.append(nuevo_colaborador)
+            print(f"\n✅ {nuevo_colaborador.nombre_empleado} ha sido registrado exitosamente.")
+            print(f"Sueldo Neto: RD${nuevo_colaborador.sueldo_neto:,.2f}")
+        else:
+            print("Seleccione una empresa primero")
+    elif opciones =="15":
+        if empresa_activa:
+            busqueda_factura = campo_texto("Introduce la ID PHX-XXXXX o el NCF a buscar").strip().upper()
+            resultado = buscar_por_id(empresa_activa,buscar_facturas)
+            if busqueda_factura:
+                print(f"\n✅ DOCUMENTO ENCONTRADO")
+                print(f"------------------------------------------")
+                print(f"Tipo:      {resultado.tipo_documento.upper()}")
+                print(f"Entidad:   {resultado.proveedor}")
+                print(f"Monto:     RD${resultado.total:,.2f}")
+                print(f"ESTADO:    {resultado.estado.upper()}") # <--- Aquí agregamos el Estado
+                print(f"Pendiente: RD${resultado.saldo_pendiente:,.2f}")
+                print(f"------------------------------------------")
+            else:
+                print(f"❌ No se encontró nada con el ID: {busqueda_factura}")
+            
         else:
             print("Seleccione una empresa primero")

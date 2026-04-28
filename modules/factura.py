@@ -1,6 +1,6 @@
 from modules.validaciones import id_phoenix, funcion_soporte_hora
 
-class factura():
+class Factura():
     def __init__(self, empresa, destino):
         # 1. Identificación básica (Conexión con la Empresa)
         self.nombre_empresa = empresa.nombre
