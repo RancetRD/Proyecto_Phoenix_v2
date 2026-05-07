@@ -15,7 +15,7 @@ class Empleado():
         self.cargo_empleado = campo_texto("Introduce el cargo del empleado: ")
         self.fecha_entrada = campo_fecha("Introduce ingreso del empleado (dd/mm/aaaa): ")
         self.sueldo_bruto = campo_float("Introduce el sueldo bruto del empleado: ")
-        
+        self.departamento_empleado = campo_texto("Introduce el departamento del empleado: ").strip().upper()
         # --- CÁLCULOS AUTOMÁTICOS AL CREAR EL OBJETO ---
         
         # 1. Retenciones de Ley (TSS)
@@ -63,3 +63,39 @@ class Empleado():
             excedente = sueldo_neto_tss - 72260
             isr = (excedente * 0.25) + 6648
         return isr
+
+def reporte_total_empleados(empresa):#AQUI CALCULAMOS UN REPORTE TOTAL DE TODOS LOS EMPLEADOS DE LA EMPRESA
+    total_neto = 0
+    total_tss = 0
+    total_empresa = 0
+    if not empresa.nomina:
+        print("No hay empleados registrados")
+        return
+    for reporte in empresa.nomina:
+        if reporte.status_empleado == True:
+            total_neto += reporte.sueldo_neto
+            total_tss += reporte.sfs + reporte.afp
+            total_empresa += reporte.costo_total_empleado
+    print(f"Total Sueldo Neto: {total_neto:,.2f}")
+    print(f"Total TSS (Retenciones): {total_tss:,.2f}")
+    print(f"Costo Total Empresa: {total_empresa:,.2f}")
+
+def reporte_por_departamento(empresa):
+    total_neto = 0
+    conteo = 0
+    buscardor_empleado_departamento = campo_texto("Introduce el departamento que deseas consultar--->").strip().upper()
+    for empleado_departamento in empresa.nomina:
+        if empleado_departamento.departamento_empleado == buscardor_empleado_departamento:
+            total_neto += empleado_departamento.sueldo_neto 
+            conteo +=  1
+    if conteo > 0:
+        print(f"\n==============================================")
+        print(f"   REPORTE DE NÓMINA: {buscardor_empleado_departamento}")
+        print(f"==============================================")
+        print(f"👥 Empleados en el área: {conteo}")
+        print(f"💸 Total Neto a Pagar:   RD${total_neto:,.2f}")
+        print(f"==============================================\n")
+    if conteo == 0:
+        print("No se encontrado empleados en ese departamento")
+
+    

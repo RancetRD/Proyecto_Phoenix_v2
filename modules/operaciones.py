@@ -16,7 +16,7 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    monto_neto = campo_float("MONTO NETO-->")
    while True:
             
-        itbis = campo_float("ITBS-->")    
+        itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)    
         if itbis > monto_neto:
             print("EL itbs no puede ser mayor al monto neto")
             continue
@@ -64,7 +64,7 @@ def registrar_proforma(empresa):
    rnc = campo_rnc ("RNC-->").strip()
    fecha = campo_fecha("Fecha-->")
    monto_neto = campo_float("Monto Neto-->")
-   itbis = campo_float("ITBIS--->")
+   itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
    comentario = input("Introduce un comentario si gusta")
    documento_proformas = Factura(empresa,"proformas")
    documento_proformas.proveedor = proveedor
@@ -100,7 +100,7 @@ def registrar_cotizacion(empresa):
    rnc = campo_rnc ("RNC-->").strip()
    fecha = campo_fecha("Fecha-->")
    monto_neto = campo_float("Monto Neto-->")
-   itbis = campo_float("ITBIS--->")
+   itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
    comentario = input("Introduce un comentario si gusta")
    nueva_cotizacion = Factura(empresa,"cotizaciones")
    nueva_cotizacion.proveedor = proveedor
@@ -137,9 +137,9 @@ def registrar_telecom(empresa):
    rnc = campo_rnc("RNC-->")
    fecha = campo_fecha("Introduzca su fecha, ejm 11/04/2026-->")
    monto_neto = campo_float("Monto neto-->")
-   itbis = campo_float("ITBS")
-   isc = campo_isc("ISC-->",monto_neto)
-   cdt = campo_cdt("CDT-->",monto_neto)
+   itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
+   isc = campo_isc("Introduzca el monto de ISC de la factura-->", monto_neto)
+   cdt = campo_cdt("Introduzca el monto de CDT de la factura-->", monto_neto)
    ley_10 = 0
    
    print(f"Tu ISC es: {isc} | Tu CDT es: {cdt} ")
@@ -158,7 +158,7 @@ def registrar_telecom(empresa):
    nueva_telecom.saldo_pendiente = nueva_telecom.total
    nueva_telecom.concepto = campo_texto("Introduzca el concepto de la factura").strip()
    nueva_telecom.comentario = input("Introduce un comentario si gusta")
-   empresa.compras.append(nueva_telecom)
+   empresa.telecomunicaciones.append(nueva_telecom)
    print(f"\n✅ Registro de Telecomunicaciones exitoso.")
    print(f"🆔 ID Phoenix: {nueva_telecom.id_transaccion}")
    print(f"💰 TOTAL A PAGAR: RD${nueva_telecom.total:,.2f}") # <--- Esta es la clave
@@ -180,8 +180,8 @@ def registrar_restaurante(empresa):
    rnc = campo_rnc("RNC-->")
    fecha = campo_fecha("Introduzca su fecha, ejm 11/04/2026-->")
    monto_neto = campo_float("Monto neto-->")
-   itbis = monto_neto * 0.18
-   ley_10 = monto_neto * 0.10
+   itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
+   ley_10 = campo_10_ley("Introduzca el monto del 10% ",monto_neto)
    print("Su itbs es: ",itbis,"La propina legal es : ",ley_10)
 
    nueva_restaurantes = Factura(empresa,"restaurantes")
@@ -196,7 +196,7 @@ def registrar_restaurante(empresa):
    nueva_restaurantes.saldo_pendiente = nueva_restaurantes.total
    nueva_restaurantes.concepto = campo_texto("Introduce el concepto de la factura").strip()
    nueva_restaurantes.comentario = input("Introduce un comentario si gusta").strip().upper()
-   empresa.compras.append(nueva_restaurantes)
+   empresa.restaurantes.append(nueva_restaurantes)
    # --- Resumen Final de Registro ---
    print(f"\n" + "="*40)
    print(f"✅ RESTAURANTE REGISTRADO CON ÉXITO")

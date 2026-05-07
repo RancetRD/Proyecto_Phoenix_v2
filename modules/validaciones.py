@@ -117,7 +117,6 @@ def campo_fecha_hora(mensaje):#FUNCION REUTILIZABLE, PARA CUALQUIER FECHA
 
 def funcion_soporte_hora(nombre_usuario):
    ahora = datetime.datetime.now()
-   nombre_usuario = "ADMIN"
    fecha_texto = ahora.strftime("%d/%m/%Y %H:%M:%S")
    return f"Registro realizado por {nombre_usuario} el {fecha_texto}"
 
@@ -141,6 +140,35 @@ def campo_cedula(mensaje):
          continue
       return cedula
    
+def campo_itbis(mensaje, monto_neto):
+    while True:
+        try:
+            opciones = None
+            campo_itbis = campo_float(mensaje)
+            
+            if campo_itbis < 0:
+                print("Lo sentimos el ITBIS no puede ser menor a 0")
+                continue
+            
+            if campo_itbis > monto_neto + 3:
+                print("Los sentimos el ITBIS, no puede ser mayor al 18%")
+                print("Si desea cambiar el ITBIS marque (1), de lo contrario el programa continuara")
+                
+                opciones = input("Seleccion: ").strip()
+
+                if opciones == "1":
+                    continue
+                else:
+                    print("Continuando el programa...")
+                    return campo_itbis
+            
+            return campo_itbis
+            
+        except ValueError:
+            print("INVALIDO")
+
+
+
 
       
       

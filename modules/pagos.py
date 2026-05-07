@@ -105,7 +105,7 @@ def procesar_debito_banco(empresa):
     print(f" Pago exitoso.")
     print(f" Saldo restante en factura: {moneda_factura}${factura.saldo_pendiente:,.2f}")
     print(f" Nuevo balance en {seleccion}: {moneda_banco}${empresa.bancos[seleccion]['balance']:,.2f}")
-    if factura.saldo_pendiente == 0:
+    if factura.saldo_pendiente <= 0:
        factura.estado= "Pagada"
        print("Factura completa al 100%")
     else:

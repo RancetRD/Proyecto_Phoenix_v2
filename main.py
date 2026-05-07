@@ -1,5 +1,6 @@
 from modules.validaciones import *
-from modules.bodega import registrar_nueva_empresa, agregar_banco
+from modules.base_datos import inicializar_base_datos,cargar_empresas_guardadas
+from modules.bodega import registrar_nueva_empresa, agregar_banco,Empresa
 from modules.pagos import procesar_debito_banco
 from modules.contabilidad import mostrar_historial
 from modules.factura import Factura  
@@ -18,7 +19,15 @@ from modules.operaciones import (
 )
 mis_empresas = []
 empresa_activa = None
-
+inicializar_base_datos()
+datos_descargados = cargar_empresas_guardadas()
+for fila in datos_descargados:
+    id_db = fila[0]
+    nombre_db = fila[1]
+    rnc_db = fila[2]
+    regimen_db =fila[3]
+    empresa_armada = Empresa(id_db,nombre_db,rnc_db,regimen_db)
+    mis_empresas.append(empresa_armada)
 while True:
     print("\n==============================")
     print("      SISTEMA PHOENIX")
@@ -206,10 +215,12 @@ while True:
     elif opciones =="15":
         if empresa_activa:
             busqueda_factura = campo_texto("Introduce la ID PHX-XXXXX o el NCF a buscar").strip().upper()
-            resultado = buscar_por_id(empresa_activa,buscar_facturas)
+            resultado = buscar_por_id(empresa_activa,busqueda_factura)
             if busqueda_factura:
                 print(f"\n✅ DOCUMENTO ENCONTRADO")
                 print(f"------------------------------------------")
+                print(f"ID PHX:    {resultado.id_transaccion}")
+                print(f"NCF:       {resultado.ncf}")
                 print(f"Tipo:      {resultado.tipo_documento.upper()}")
                 print(f"Entidad:   {resultado.proveedor}")
                 print(f"Monto:     RD${resultado.total:,.2f}")

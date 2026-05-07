@@ -1,4 +1,5 @@
 from modules.validaciones import campo_texto, campo_rnc,campo_float
+import sqlite3
 
 class Empresa():
         def __init__(self,id_empresa,nombre,rnc,regimen):
@@ -67,6 +68,20 @@ def registrar_nueva_empresa(listas_empresas):
             break
         else:
             print("[!] Opción inválida.")
+    #INICIO DE GUARDADO DE BASE DE DATOS
+    conexion = sqlite3.connect("phoenix.db")
+    cursor = conexion.cursor()
+
+    #COMANDOS CON DEFENSAS CONTRA CUALQUIER INTENCION MALIGNA EXTERNA
+    comando_sql = """
+    INSERT INTO Empresa(nombre,rnc,regimen)
+    VALUES (?, ?, ?)
+    """
+    #AHORA EMPAQUETAMOS LA VARIABLE DE LA MISMA FORMA EN SU MISMO ORDEN
+    datos_empresa = (nombre,rnc,regimen)
+    cursor.execute(comando_sql,datos_empresa)
+    conexion.commit()
+    conexion.close()
 
     id_empresa = len(listas_empresas) + 1
     
