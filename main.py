@@ -5,6 +5,9 @@ from modules.pagos import procesar_debito_banco
 from modules.contabilidad import mostrar_historial
 from modules.factura import Factura  
 from modules.nominas import Empleado
+from modules.terceros import listar_terceros, flujo_registro_tercero,flujo_eliminar_tercero
+from modules.db_empresa import obtener_empresas_db
+from modules.gestor_empresa import gestor_empresa, eliminar_empresa
 from modules.consultas import buscar_facturas, buscar_por_id
 from modules.operaciones import (
     registrar_gasto,
@@ -53,11 +56,14 @@ while True:
     print("13-Reporte ajusteros")
     print("14-Nominas")
     print("15-Buscar por ID o NCF")
-    
-
+    print("16-Editar Empresa")
+    print("17-Eliminar Empresa")
+    print("18-Registrar Proveedor")
+    print("19-ver proveedor")
+    print("20-Eliminar Proveedor")
     opciones = input("Seleccione la opcion que mas desee--->").strip()
-    if opciones not in [str(i) for i in range(1, 20)]:
-        print("ERROR: SELECCIONE UNA OPCIÓN VÁLIDA (1-15)")
+    if opciones not in [str(i) for i in range(1, 25)]:
+        print("ERROR: SELECCIONE UNA OPCIÓN VÁLIDA (1-25)")
         continue
 
     if opciones =="1":
@@ -70,26 +76,45 @@ while True:
             print("Registro cancelado: El RNC ya existe")
     
     elif opciones =="2":
-        if not mis_empresas:
+      lista_db = obtener_empresas_db()
+
+      if not lista_db:
             print("No hay registros todavia")
-        else:
+      else:
             print("Listas de empresas")
-            for emp in mis_empresas:
-                print(f"ID: {emp.id_empresa} - {emp.nombre}")
+            # 2. Leemos la lista fresca usando índices
+            for emp in lista_db:
+                print(f"ID: {emp[0]} - {emp[1]}")
+            
             try:
                 id_buscar = int(input("Ingrese el ID para entrar: "))
                 encontrada = False
-                for emp in mis_empresas:
-                    if emp.id_empresa== id_buscar:
-                        empresa_activa = emp
+                
+                for emp in lista_db:
+                    # 1. MAGIA AQUÍ: Convertimos ambos a texto para que no haya choque
+                    if str(emp[0]) == str(id_buscar):  
+                        
+                        # 2. Sincronizamos la memoria
+                        for obj_empresa in mis_empresas:
+                            if str(obj_empresa.id_empresa) == str(id_buscar) or  obj_empresa.rnc == emp[2]:
+                                obj_empresa.id_empresa = emp[0]
+                                obj_empresa.nombre = emp [1]
+                                obj_empresa.rnc = emp[2]
+                                obj_empresa.regimen = emp[3]
+
+                                empresa_activa = obj_empresa
+                                
+                        # 3. Estas líneas están alineadas con "for obj_empresa"
                         encontrada = True
-                        print(f"\n[OK] Bienvenido de nuevo a la empresa #{emp.id_empresa}--{emp.nombre}")
-                        break
+
+                        print(f"\n[OK] Bienvenido de nuevo a la empresa #{emp[0]}--{emp[1]}")
+                        break  
+                        
                 if not encontrada:
                     print("ID no encontrado")
+                    
             except ValueError:
                 print("Por favor, Ingrese un numero ID valido")
-    
     elif opciones =="3":
         if empresa_activa:
             registrar_gasto(empresa_activa)
@@ -232,3 +257,33 @@ while True:
             
         else:
             print("Seleccione una empresa primero")
+    elif opciones =="16":
+        if empresa_activa:
+            gestor_empresa()
+        else:
+            print("Seleccione una empresa primero")
+    
+    elif opciones == "17":
+        if empresa_activa:
+            eliminar_empresa()
+        else:
+            print("Seleccione una empresa primero")
+    
+    elif opciones == "18":
+        print("\n--- NUEVO REGISTRO DE TERCERO ---")
+        nombre = input("Nombre o Razón Social: ")
+        rnc = input("RNC o Cédula (solo números): ")
+        tipo = input("¿Es Suplidor (S) o Cliente (C)?: ")
+        
+        # Aquí conectamos con la función que ya creamos
+        flujo_registro_tercero(nombre, rnc, tipo)
+
+    elif opciones == "19":
+        # Aquí conectamos con tu nueva tabla profesional
+        listar_terceros()
+    elif opciones =="20":
+        if empresa_activa:
+            flujo_eliminar_tercero()
+        else:
+            print("No ha seleccionado la empresa")
+        

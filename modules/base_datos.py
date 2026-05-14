@@ -38,3 +38,26 @@ def cargar_empresas_guardadas():
     conexion.close()
 
     return empresas_crudas#AQUI DEVOLVEMOS EL VALOR , YA QUE UNA FUNCION , CUANDO SE UTILIZA DESAPARECEN LOS DATOS
+
+
+def inicializar_base_datos():
+    conexion = sqlite3.connect("phoenix.db")
+    cursor = conexion.cursor()
+
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS Empresa(
+                   id_empresa INTEGER PRIMARY KEY AUTOINCREMENT,
+                   nombre TEXT,
+                   rnc TEXT,
+                   regimen TEXT )
+                   """)
+    
+    cursor.execute(""" CREATE TABLE IF NOT EXISTS Terceros(
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   nombre TEXT NOT NULL,
+                   rnc TEXT NOT NULL,
+                   tipo TEXT NOT NULL)
+                   """)
+    
+    conexion.commit()
+    conexion.close()
+    print("✅ Base de datos inicializada correctamente.")
