@@ -1,6 +1,7 @@
 from modules.validaciones import *
 from modules.consultas import buscar_por_id
 from modules.factura import Factura
+from modules.base_datos import buscar_rnc_id
 #---------------FUNCION BASE DE REGISTRO DE FACTURAS-------------------
 def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    print("REGISTROS GASTOS 606")
@@ -10,8 +11,17 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
          print("NCF duplicado, vuelva introcuir el ncf",ncf)
          continue
         break
-   proveedor = campo_texto("PROVEEDOR-->").strip()
    rnc = campo_rnc("RNC/CEDULA-->")
+   tercero_encontrado = buscar_rnc_id(rnc)
+   if tercero_encontrado:
+       proveedor = tercero_encontrado[1]
+       # En vez de imprimir la tupla cruda, imprimes líneas limpias y alineadas:
+       print(f"🔍 Status: SUPLIDOR ENCONTRADO")
+       print(f"🏢 Nombre: {proveedor}")
+       print(f"🪪 Tipo: {tercero_encontrado[3]}")
+   else:
+      print("❌ Error: Este suplidor no está registrado en el sistema. Vaya al módulo de Terceros.")
+      return
    fecha = campo_fecha("FECHA-->")
    monto_neto = campo_float("MONTO NETO-->")
    while True:
@@ -30,8 +40,8 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
    nueva_factura = Factura(empresa,"compras")
    nueva_factura.tipo_documento = "compras"
    nueva_factura.ncf = ncf
-   nueva_factura.proveedor = proveedor
    nueva_factura.rnc = rnc
+   nueva_factura.proveedor = proveedor
    nueva_factura.fecha = fecha
    nueva_factura.monto_neto = monto_neto
    nueva_factura.itbis = itbis
@@ -59,9 +69,18 @@ def registrar_gasto(empresa):# ESTA SER LA FUNCION BASE DE LAS FACTURAS
 
 def registrar_proforma(empresa):
    print("REGISTRO DE PROFORMA")
-   
-   proveedor = campo_texto("Proveedor--->").strip()
    rnc = campo_rnc ("RNC-->").strip()
+   tercero_encontrado = buscar_rnc_id(rnc)
+   if tercero_encontrado:
+       proveedor = tercero_encontrado[1]
+       # En vez de imprimir la tupla cruda, imprimes líneas limpias y alineadas:
+       print(f"🔍 Status: SUPLIDOR ENCONTRADO")
+       print(f"🏢 Nombre: {proveedor}")
+       print(f"🪪 Tipo: {tercero_encontrado[3]}")
+   else:
+      print("❌ Error: Este suplidor no está registrado en el sistema. Vaya al módulo de Terceros.")
+      return
+
    fecha = campo_fecha("Fecha-->")
    monto_neto = campo_float("Monto Neto-->")
    itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
@@ -95,9 +114,17 @@ def registrar_proforma(empresa):
 def registrar_cotizacion(empresa):
    print("REGISTRO DE COTIZACIONES")
 
-  
-   proveedor = campo_texto("Proveedor--->").strip()
    rnc = campo_rnc ("RNC-->").strip()
+   tercero_encontrado = buscar_rnc_id(rnc)
+   if tercero_encontrado:
+       proveedor = tercero_encontrado[1]
+       # En vez de imprimir la tupla cruda, imprimes líneas limpias y alineadas:
+       print(f"🔍 Status: SUPLIDOR ENCONTRADO")
+       print(f"🏢 Nombre: {proveedor}")
+       print(f"🪪 Tipo: {tercero_encontrado[3]}")
+   else:
+      print("❌ Error: Este suplidor no está registrado en el sistema. Vaya al módulo de Terceros.")
+      return
    fecha = campo_fecha("Fecha-->")
    monto_neto = campo_float("Monto Neto-->")
    itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
@@ -131,10 +158,22 @@ def registrar_cotizacion(empresa):
 
 def registrar_telecom(empresa):
    print("Registros de telecomunicaciones")
-
-   ncf = campo_ncf("NCF-->").upper()
-   proveedor = campo_texto("Proveedor-->").strip()
+   while True:
+      ncf = campo_ncf("NCF-->").upper()
+      if any (f.ncf == ncf for f  in empresa.telecomunicaciones):
+         print("❌ Error: NCF duplicado en Telecomunicaciones. Vuelva a introducir el NCF:", ncf)
+         continue
+      break
    rnc = campo_rnc("RNC-->")
+   tercero_encontrado = buscar_rnc_id(rnc)
+   if tercero_encontrado:
+      proveedor = tercero_encontrado[1]
+      print(f"🔍 Status: SUPLIDOR ENCONTRADO")
+      print(f"🏢 Nombre: {proveedor}")
+      print(f"🪪 Tipo: {tercero_encontrado[3]}")
+   else:
+      print("❌ Error: Este suplidor no está registrado en el sistema. Vaya al módulo de Terceros.")
+      return
    fecha = campo_fecha("Introduzca su fecha, ejm 11/04/2026-->")
    monto_neto = campo_float("Monto neto-->")
    itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
@@ -146,8 +185,8 @@ def registrar_telecom(empresa):
 
    nueva_telecom = Factura(empresa,"telecomunicaciones")
    nueva_telecom.ncf = ncf
-   nueva_telecom.proveedor = proveedor
    nueva_telecom.rnc = rnc
+   nueva_telecom.proveedor = proveedor
    nueva_telecom.fecha = fecha
    nueva_telecom.monto_neto = monto_neto
    nueva_telecom.itbis = itbis
@@ -174,10 +213,24 @@ def registrar_telecom(empresa):
 #FUNCION ESPECIALMENTE PARA LOS GASTOS DE RESTAURANTE
 #FUNCION PARA TIPO GASTO FACTURA RESTAURANTE
 def registrar_restaurante(empresa):
+   while True:
+      ncf = campo_ncf("NCF-->").upper()
+      if any (f.ncf == ncf for f in empresa.restaurantes):
+         print("❌ Error: NCF duplicado en Restaurantes. Vuelva a introducir el NCF:", ncf)
+         continue
+      break
 
-   ncf = campo_ncf("NCF-->").upper()
-   proveedor = campo_texto("Proveedor").strip()
    rnc = campo_rnc("RNC-->")
+   tercero_encontrado = buscar_rnc_id(rnc)
+   if tercero_encontrado:
+       proveedor = tercero_encontrado[1]
+       # En vez de imprimir la tupla cruda, imprimes líneas limpias y alineadas:
+       print(f"🔍 Status: SUPLIDOR ENCONTRADO")
+       print(f"🏢 Nombre: {proveedor}")
+       print(f"🪪 Tipo: {tercero_encontrado[3]}")
+   else:
+      print("❌ Error: Este suplidor no está registrado en el sistema. Vaya al módulo de Terceros.")
+      return
    fecha = campo_fecha("Introduzca su fecha, ejm 11/04/2026-->")
    monto_neto = campo_float("Monto neto-->")
    itbis = campo_itbis("Introduzca el ITBIS -->", monto_neto)
@@ -186,8 +239,8 @@ def registrar_restaurante(empresa):
 
    nueva_restaurantes = Factura(empresa,"restaurantes")
    nueva_restaurantes.ncf = ncf
-   nueva_restaurantes.proveedor = proveedor
    nueva_restaurantes.rnc = rnc
+   nueva_restaurantes.proveedor = proveedor
    nueva_restaurantes.fecha = fecha
    nueva_restaurantes.monto_neto = monto_neto
    nueva_restaurantes.itbis = itbis

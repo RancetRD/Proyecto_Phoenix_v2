@@ -6,7 +6,7 @@ from modules.contabilidad import mostrar_historial
 from modules.factura import Factura  
 from modules.nominas import Empleado
 from modules.terceros import listar_terceros, flujo_registro_tercero,flujo_eliminar_tercero
-from modules.db_empresa import obtener_empresas_db
+from modules.base_datos import obtener_empresas_db
 from modules.gestor_empresa import gestor_empresa, eliminar_empresa
 from modules.consultas import buscar_facturas, buscar_por_id
 from modules.operaciones import (
@@ -273,10 +273,23 @@ while True:
         print("\n--- NUEVO REGISTRO DE TERCERO ---")
         nombre = input("Nombre o Razón Social: ")
         rnc = input("RNC o Cédula (solo números): ")
-        tipo = input("¿Es Suplidor (S) o Cliente (C)?: ")
+        while True:
+         opciones = input("Introduce 1-Cliente o 2-Suplidor").strip()
+         if opciones not in ("1","2"):
+             print("Invalido, Debe seleccionar 1 o 2")
+             continue
+         if opciones =="1":
+             tipo = "CLIENTE"
+             print(tipo)
+             break
+         elif opciones =="2":
+             tipo ="SUPLIDOR"
+             print(tipo)
+             break
+        tercero = flujo_registro_tercero(nombre,rnc,tipo) 
         
         # Aquí conectamos con la función que ya creamos
-        flujo_registro_tercero(nombre, rnc, tipo)
+        
 
     elif opciones == "19":
         # Aquí conectamos con tu nueva tabla profesional

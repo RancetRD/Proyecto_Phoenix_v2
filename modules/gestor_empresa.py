@@ -1,6 +1,5 @@
 from modules.validaciones import campo_texto, campo_float,campo_rnc
-from modules.db_empresa import obtener_empresas_db, actualizar_empresa_db, eliminar_empresa_db
-
+from modules.base_datos import obtener_empresas_db, actualizar_empresa_db, eliminar_empresa_db
 
 def gestor_empresa():
     

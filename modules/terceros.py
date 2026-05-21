@@ -1,5 +1,5 @@
 from modules.validaciones import campo_rnc, campo_texto,campo_float
-from modules.db_empresa import registrar_tercero_db, obtener_terceros_db,eliminar_tercero
+from modules.base_datos import registrar_tercero_db, obtener_terceros_db, eliminar_tercero
 
 class Tercero():
     def __init__(self,id_tercero,nombre,rnc,tipo_negocio):
@@ -49,10 +49,9 @@ def listar_terceros():
             id_t, nombre, rnc, tipo = t
             
             # Limpiamos la lógica del tipo (S = Suplidor, lo demás Cliente)
-            tipo_txt = "SUPLIDOR" if tipo == "S" else "CLIENTE"
             
 
-            print(f"{id_t:<5} | {nombre[:30]:<30} | {rnc:<15} | {tipo_txt:<12}")
+            print(f"{id_t:<5} | {nombre[:30]:<30} | {rnc:<15} | {tipo:<12}")
     return terceros
 
 
