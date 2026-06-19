@@ -1,8 +1,9 @@
-from modules.validaciones import campo_texto, campo_float
+from modules.validaciones import campo_texto,campo_moneda
 from modules.contabilidad import registrar_transaccion
 from modules.consultas import buscar_por_id
 from modules.validaciones import campo_fecha_hora
 from modules.validaciones import funcion_soporte_hora
+from decimal import Decimal, InvalidOperation
 
 import datetime
 def procesar_debito_banco(empresa): 
@@ -13,7 +14,7 @@ def procesar_debito_banco(empresa):
     if factura == None:
        print("No se encontro la factura con ID PHX-XXX o NCF")
        return
-    if factura.saldo_pendiente <= 0:
+    if factura.saldo_pendiente <= Decimal("0.00"):
      print(f"¡Atención! La factura {pago_id_o_ncf} ya está saldada (Estado: {factura.estado}).")
      return
     print(f"\n--- Datos de la Factura ---")
@@ -28,35 +29,39 @@ def procesar_debito_banco(empresa):
         moneda_banco = empresa.bancos[nombre]["moneda"]
         cuenta = empresa.bancos[nombre].get("numero_cuenta","n/a")
         print(f"- {nombre} (CTA: {cuenta}) | {moneda_banco} ${balance:,.2f}")
-    seleccion = campo_texto("Indique el banco que desea realizar la transaccion").upper().strip()
-    
+   
+    while True:
+      seleccion = campo_texto("Indique el banco que desea realizar la transaccion").upper().strip()
 
-    if seleccion not in empresa.bancos:
-        print("Ese banco no se encuentra en la lista de bancos registrados")
-        return
-    if empresa.bancos[seleccion]["balance"] <= 0:#AQUI LE DECIMOS QUE SI EL BANCO NO TIENE SUFICIENTE , SALGA DEL FUNCION Y AGREGUE FONDOS , PARA TRABAJAR
-       print("El banco no tiene fondos, agregue fondos para seguir trabajando")
-       return
+      if seleccion not in empresa.bancos:
+         print("Ese banco no se encuentra en la lista de bancos registrados")
+         return
+      if empresa.bancos[seleccion]["balance"] <= Decimal("0.00"):#AQUI LE DECIMOS QUE SI EL BANCO NO TIENE SUFICIENTE , SALGA DEL FUNCION Y AGREGUE FONDOS , PARA TRABAJAR
+         print("El banco no tiene fondos, agregue fondos para seguir trabajando")
+         continue
+      break
+       
+       
     moneda_factura = factura.moneda
     moneda_banco = empresa.bancos[seleccion]["moneda"]
     if moneda_banco != moneda_factura:
        print(f"¡Atención! La factura es {moneda_factura} y el banco es {moneda_banco}")
 
-    monto_pago = campo_float("Introduce el monto a pagar")
+    monto_pago = campo_moneda("Introduce el monto a pagar")
     fecha_pago = campo_fecha_hora("Introduce la fecha del pago (DD/MM/YYYY): ")
     print(f"📅 Fecha procesada para el reporte: {fecha_pago.strftime('%d/%m/%Y')}")
-    if monto_pago > factura.saldo_pendiente:
+    if monto_pago > factura.saldo_pendiente :
        print(f"Error: el monto excede el saldo de {factura.saldo_pendiente}")
        return
-    tasa = 1
+    tasa = Decimal("1.0000")
     if moneda_banco != moneda_factura:
-       tasa = getattr(factura,"tasa_cambio",1)
+       tasa = getattr(factura,"tasa_cambio",Decimal("1.0000"))
        while True:
           opciones = campo_texto(f"Tasa actual: {tasa}. ¿Cambiar tasa? (S/N): ").strip().upper()
           if opciones not in ("S","N"):
              print("Invalido , debe introducir S o N")
           if opciones =="S":
-             tasa = campo_float("Introduce la tasa del dia por ejm 59.65")
+             tasa = campo_moneda("Introduce la tasa del dia por ejm 59.65")
              break
           elif opciones =="N":
              print("Continua con la tasa registrada")
@@ -67,7 +72,7 @@ def procesar_debito_banco(empresa):
        monto_a_descontar = monto_pago * tasa
        print(f" Conversión: {monto_pago} USD x {tasa} = {monto_a_descontar:,.2f} DOP")
     elif moneda_factura =="DOP" and moneda_banco=="USD":
-       if tasa > 0:
+       if tasa > Decimal("0.00"):
           monto_a_descontar = monto_pago/tasa
           print(f" 💱 Conversión: {monto_pago} DOP / {tasa} = {monto_a_descontar:,.2f} USD")
        else:
@@ -105,7 +110,7 @@ def procesar_debito_banco(empresa):
     print(f" Pago exitoso.")
     print(f" Saldo restante en factura: {moneda_factura}${factura.saldo_pendiente:,.2f}")
     print(f" Nuevo balance en {seleccion}: {moneda_banco}${empresa.bancos[seleccion]['balance']:,.2f}")
-    if factura.saldo_pendiente <= 0:
+    if factura.saldo_pendiente <= Decimal("0.00"):
        factura.estado= "Pagada"
        print("Factura completa al 100%")
     else:

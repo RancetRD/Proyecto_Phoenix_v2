@@ -1,0 +1,4 @@
+[2026-06-10 22:31:07] Módulo: procesar_debito_banco | Error: division by zero
+[2026-06-11 23:57:07] Módulo: ejecutar_opcion_9 | Error: cannot access local variable 'factura_encontrada' where it is not associated with a value
+[2026-06-12 19:55:50] Módulo: ejecutar_opcion_9 | Error: cannot access local variable 'ncf' where it is not associated with a value
+[2026-06-18 22:05:31] Módulo: procesar_debito_banco | Error: unsupported operand type(s) for -=: 'float' and 'decimal.Decimal'

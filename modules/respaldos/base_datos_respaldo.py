@@ -1,9 +1,7 @@
 import sqlite3
-from decimal import Decimal
 from modules.factura import Factura
 
-# 1. Adaptador: Le dice a SQLite: "Cuando veas un Decimal, conviértelo a texto (str)"
-sqlite3.register_adapter(Decimal, str)
+
 
 def cargar_empresas_guardadas():
 
@@ -167,7 +165,7 @@ def facturas_db():
     conexion = sqlite3.connect("phoenix.db")
     cursor = conexion.cursor()
 
-    cursor.execute("""  CREATE TABLE IF NOT EXISTS Factura(id_transaccion TEXT PRIMARY KEY ,id_empresa INTEGER,
+    cursor.execute("""  CREATE TABLE IF NOT EXISTS Factura(id_transaccion TEXT PRIMARY KEY ,
                    ncf TEXT NULL,
                    rnc TEXT,
                    proveedor TEXT,
@@ -178,8 +176,6 @@ def facturas_db():
                    cdt REAL DEFAULT 0,
                    ley_10 REAL DEFAULT 0,
                    total REAL,
-                   isr_2 REAL DEFAULT 0,  
-                    isr_10 REAL DEFAULT 0,
                    saldo_pendiente REAL,
                    concepto TEXT,
                    comentario TEXT,
@@ -196,15 +192,14 @@ def guardar_factura_db(documento):
         cursor = conexion.cursor()
 
         sql = """INSERT INTO Factura (
-                    id_transaccion,id_empresa, ncf, rnc, proveedor, fecha, 
+                    id_transaccion, ncf, rnc, proveedor, fecha, 
                     monto_neto, itbis, isc, cdt, ley_10, 
-                    total, isr_2, isr_10, saldo_pendiente, concepto, 
-                    comentario, tipo_documento, estado
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)"""
+                    total, saldo_pendiente, concepto, comentario, 
+                    tipo_documento, estado
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
         valores = (
             documento.id_transaccion,
-            documento.id_empresa,   
             documento.ncf,
             documento.rnc,
             documento.proveedor,
@@ -215,14 +210,13 @@ def guardar_factura_db(documento):
             documento.cdt,
             documento.ley_10,
             documento.total,
-            documento.isr_2,    # ¡Ahora sí está incluido!
-            documento.isr_10,   # ¡Ahora sí está incluido!
             documento.saldo_pendiente,
             documento.concepto,
             documento.comentario,
             documento.tipo_documento,
             documento.estado
         )
+
         cursor.execute(sql, valores)
         conexion.commit()
         conexion.close()
@@ -236,71 +230,34 @@ def guardar_factura_db(documento):
         return False
 
 def cargar_factura_db(empresa):
-    # 1. Limpieza de listas en memoria
-    # Vaciamos las listas para evitar duplicados si la función se llama más de una vez
-    empresa.compras = []
-    empresa.ventas = []
-    empresa.telecomunicaciones = []
-    empresa.restaurantes = []
-    empresa.cotizaciones = []
-    empresa.proformas = []
-    empresa.reporte_ajusteros = []
 
     conexion = sqlite3.connect("phoenix.db")
     cursor = conexion.cursor()
 
-    # 2. Filtro SQL: Traemos exclusivamente las facturas asociadas al ID de esta empresa
-    cursor.execute("SELECT * FROM Factura WHERE id_empresa = ?", (empresa.id_empresa,))
+    cursor.execute("SELECT * FROM Factura WHERE rnc_empresa = ?", (empresa.rnc,))
+
     filas = cursor.fetchall()
-  
+    empresa.compras = []
     for fila in filas:
-        # Extraemos el tipo de documento primero para inicializar la clase correctamente
-        tipo_doc = fila[17] 
-        f = Factura(empresa, tipo_doc) 
-        
-        # 3. Mapeo de la Tupla a los Atributos del Objeto
+
+        f = Factura(empresa, "compras") 
         f.id_transaccion = fila[0]
-        # Nota: fila[1] es id_empresa. No necesitamos reasignarlo porque el __init__ ya lo hace
-        f.ncf = fila[2]
-        f.rnc = fila[3]
-        f.proveedor = fila[4]
-        f.fecha = fila[5]
-        f.monto_neto = Decimal(fila[6])
-        f.itbis = Decimal(fila[7])
-        f.isc = Decimal(fila[8])
-        f.cdt = Decimal(fila[9])
-        f.ley_10 = Decimal(fila[10])
-        f.total = Decimal(fila[11])
-        f.isr_2 = Decimal(fila[12])    
-        f.isr_10 = Decimal(fila[13])   
-        f.saldo_pendiente = Decimal(fila[14])
-        f.concepto = fila[15]
-        f.comentario = fila[16]
-        f.tipo_documento = fila[17]
-        f.estado = fila[18]
-        
-        # 4. Enrutador: Distribución dinámica a las listas correspondientes
-        if f.tipo_documento == "compras":
-            empresa.compras.append(f)
-        elif f.tipo_documento == "ventas":
-            empresa.ventas.append(f)
-        elif f.tipo_documento == "telecomunicaciones":
-            empresa.telecomunicaciones.append(f)
-        elif f.tipo_documento == "restaurantes":
-            empresa.restaurantes.append(f)
-        elif f.tipo_documento == "cotizaciones":
-            empresa.cotizaciones.append(f)
-        elif f.tipo_documento == "proformas":
-            empresa.proformas.append(f)
-        elif f.tipo_documento == "reporte_ajusteros":
-            empresa.reporte_ajusteros.append(f)
-            
+        f.ncf = fila[1]
+        f.rnc = fila[2]
+        f.proveedor = fila[3]
+        f.fecha = fila[4]
+        f.monto_neto = fila[5]
+        f.itbis = fila[6]
+        f.isc = fila[7]
+        f.cdt = fila[8]
+        f.ley_10 = fila[9]
+        f.total = fila[10]
+        f.saldo_pendiente = fila[11]
+        f.concepto = fila[12]
+        f.comentario = fila[13]
+        f.tipo_documento = fila[14]
+        f.estado = fila[15]
+
+        empresa.compras.append(f)
     conexion.close()
-    
-    # 5. Validación visual de la carga en consola
-    total_cargadas = (len(empresa.compras) + len(empresa.ventas) + 
-                      len(empresa.telecomunicaciones) + len(empresa.restaurantes) + 
-                      len(empresa.cotizaciones) + len(empresa.proformas) + 
-                      len(empresa.reporte_ajusteros))
-                      
-    print(f"✅ Se cargaron {total_cargadas} documentos en total para la empresa: {empresa.nombre}.")
+    print(f"✅ Se cargaron {len(filas)} facturas desde la base de datos.")

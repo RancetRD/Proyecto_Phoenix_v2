@@ -1,4 +1,5 @@
-from modules.validaciones import campo_texto, campo_rnc,campo_float
+from modules.validaciones import campo_texto, campo_rnc,campo_moneda
+from decimal import Decimal, InvalidOperation
 import sqlite3
 
 class Empresa():
@@ -186,7 +187,7 @@ def agregar_banco(empresa):
       
    rnc_banco = campo_rnc("introduce el RNC del banco").strip().upper()
    print(rnc_banco)
-   monto_apertura = campo_float(f"¿Con cuánto dinero iniciaria su apertura bancaria? {nombre_banco}?-->")
+   monto_apertura = campo_moneda(f"¿Con cuánto dinero iniciaria su apertura bancaria? {nombre_banco}?-->")
    empresa.bancos[nombre_banco] = {
       "rnc":rnc_banco,
       "balance":monto_apertura,
